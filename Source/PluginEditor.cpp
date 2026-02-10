@@ -17,12 +17,12 @@ ADSREchoAudioProcessorEditor::ADSREchoAudioProcessorEditor (ADSREchoAudioProcess
     currentlyDisplayedChain = 0;
 
     // Per-chain controls
-    for (int chain = 0; chain < audioProcessor.NUM_CHAINS; ++chain)
+    for (int chain = 0; chain < numChains; ++chain)
         setupChainControls(chain);
 
     // Chain selector
     addAndMakeVisible(chainSelector);
-    for (int i = 0; i < audioProcessor.NUM_CHAINS; ++i)
+    for (int i = 0; i < numChains; ++i)
         chainSelector.addItem("Chain " + juce::String(i + 1), i + 1);
 
     chainSelector.setSelectedId(1, juce::dontSendNotification);
@@ -74,7 +74,7 @@ void ADSREchoAudioProcessorEditor::resized()
     auto top = area.removeFromTop(110);
 
     // Gain and mix sliders per chain
-    for (int chain = 0; chain < audioProcessor.NUM_CHAINS; ++chain)
+    for (int chain = 0; chain < audioProcessor.getNumChains(); ++chain)
     {
         auto chainArea = top.removeFromLeft(240);
 

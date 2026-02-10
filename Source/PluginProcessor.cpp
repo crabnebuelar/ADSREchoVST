@@ -103,24 +103,23 @@ void ADSREchoAudioProcessor::changeProgramName (int index, const juce::String& n
 {
 }
 
+// Pre-playback initialisation
 //==============================================================================
 void ADSREchoAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
-
 
     // Pre-allocate dry buffer to avoid allocation in processBlock
     masterDryBuffer.setSize(spec.numChannels, samplesPerBlock);
     chainTempBuffer.setSize(spec.numChannels, samplesPerBlock);
 
-    // CRITICAL: Clear buffers to prevent garbage data
+    // Clear buffers to prevent garbage data
     masterDryBuffer.clear();
     chainTempBuffer.clear();
 
+    // Prepare each audio effect with info
     for (auto& chain : slots)
     {
         for (auto& slot : chain)
@@ -174,7 +173,6 @@ void ADSREchoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     if (moveRequested.load(std::memory_order_acquire))
     {
         executeSlotMove();
-
     }
     
     // Resize, clear, and copy buffers
@@ -267,6 +265,7 @@ void ADSREchoAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 
     juce::ValueTree moduleState("Modules");
 
+    // Read information about the chains and slots into the saved state
     for (int j = 0; j < NUM_CHAINS; j++)
     {
         juce::ValueTree chain("Chain");
@@ -463,7 +462,7 @@ int ADSREchoAudioProcessor::getNumSlots() const
     return MAX_SLOTS;
 }
 
-int ADSREchoAudioProcessor::getNumChannels() const
+int ADSREchoAudioProcessor::getNumChains() const
 {
     return NUM_CHAINS;
 }

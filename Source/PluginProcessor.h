@@ -86,7 +86,7 @@ public:
     std::vector<std::vector<std::unique_ptr<ModuleSlot>>> slots;
 
     int getNumSlots() const;
-    int getNumChannels() const;
+    int getNumChains() const;
     SlotInfo getSlotInfo(int chainIndex, int slotIndex);
     bool slotIsEmpty(int chainIndex, int slotIndex);
 
