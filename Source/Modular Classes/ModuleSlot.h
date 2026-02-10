@@ -25,7 +25,7 @@
   #include <juce_gui_extra/juce_gui_extra.h>
 #endif
 
-#include "EffectModule.h"
+#include "Effect Modules/EffectModule.h"
 
 class ModuleSlot
 {

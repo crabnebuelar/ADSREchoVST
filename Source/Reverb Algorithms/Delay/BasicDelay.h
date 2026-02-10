@@ -9,7 +9,7 @@
   #include <juce_dsp/juce_dsp.h>
 #endif
 
-#include "CustomDelays.h"
+#include "../CustomDelays.h"
 
 class BasicDelay
 {

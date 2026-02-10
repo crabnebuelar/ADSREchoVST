@@ -19,10 +19,10 @@
     #include <juce_gui_extra/juce_gui_extra.h>
 #endif
 
-#include "CustomDelays.h"
+#include "../CustomDelays.h"
 #include "LFO.h"
 #include "ProcessorBase.h"
-#include "Utilities.h"
+#include "../../Utilities.h"
 #include "PsychoDamping.h"
 
 class DatorroHall : public ReverbProcessorBase

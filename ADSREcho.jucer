@@ -73,43 +73,51 @@
         <FILE id="fVLfVv" name="Trig Room.wav" compile="0" resource="1" file="Source/IRs/Trig Room.wav"/>
         <FILE id="y1Ymy7" name="Vocal Duo.wav" compile="0" resource="1" file="Source/IRs/Vocal Duo.wav"/>
       </GROUP>
-      <GROUP id="{9D5CDAC7-64FA-EAD2-C694-A4240E21939C}" name="ModularClasses">
-        <GROUP id="{5BA6067D-D5D0-1D4A-2C04-A23A964D8A65}" name="EffectModules">
-          <FILE id="zwN6jJ" name="ConvolutionModule.cpp" compile="1" resource="0"
-                file="Source/ConvolutionModule.cpp"/>
-          <FILE id="g0R28y" name="ConvolutionModule.h" compile="0" resource="0"
-                file="Source/ConvolutionModule.h"/>
-          <FILE id="pRkvm8" name="ReverbModule.cpp" compile="1" resource="0"
-                file="Source/ReverbModule.cpp"/>
-          <FILE id="cYkN5N" name="ReverbModule.h" compile="0" resource="0" file="Source/ReverbModule.h"/>
-          <FILE id="rUkDsM" name="EffectModule.h" compile="0" resource="0" file="Source/EffectModule.h"/>
-          <FILE id="a5oZbv" name="DelayModule.cpp" compile="1" resource="0" file="Source/DelayModule.cpp"/>
-          <FILE id="Uf1JUr" name="DelayModule.h" compile="0" resource="0" file="Source/DelayModule.h"/>
+      <GROUP id="{F9A83757-0139-7684-D039-6147F058B6F5}" name="Reverb Algorithms">
+        <GROUP id="{4E2A0DB5-CF6B-95EB-9021-A60429D7D1BB}" name="Convolution">
+          <FILE id="Ag1Gmb" name="Convolution.h" compile="0" resource="0" file="Source/Reverb Algorithms/Convolution/Convolution.h"/>
+          <FILE id="SjJl0H" name="IRBank.h" compile="0" resource="0" file="Source/Reverb Algorithms/Convolution/IRBank.h"/>
+          <FILE id="THIBh6" name="Convolution.cpp" compile="1" resource="0" file="Source/Reverb Algorithms/Convolution/Convolution.cpp"/>
         </GROUP>
-        <FILE id="KtNE91" name="ModuleSlot.h" compile="0" resource="0" file="Source/ModuleSlot.h"/>
-        <FILE id="HcV9cp" name="ModuleSlotEditor.cpp" compile="1" resource="0"
-              file="Source/ModuleSlotEditor.cpp"/>
-        <FILE id="duX9UV" name="ModuleSlotEditor.h" compile="0" resource="0"
-              file="Source/ModuleSlotEditor.h"/>
+        <GROUP id="{D4860A03-B4FB-0596-3577-E0D1E0AF4FD5}" name="Delay">
+          <FILE id="UkKsbh" name="BasicDelay.cpp" compile="1" resource="0" file="Source/Reverb Algorithms/Delay/BasicDelay.cpp"/>
+          <FILE id="ryhhff" name="BasicDelay.h" compile="0" resource="0" file="Source/Reverb Algorithms/Delay/BasicDelay.h"/>
+        </GROUP>
+        <GROUP id="{05EFC212-74B1-47C8-34C1-F99FC93DF194}" name="Reverb">
+          <FILE id="PWc3ik" name="LFO.cpp" compile="1" resource="0" file="Source/Reverb Algorithms/Reverb/LFO.cpp"/>
+          <FILE id="IS6h4Z" name="LFO.h" compile="0" resource="0" file="Source/Reverb Algorithms/Reverb/LFO.h"/>
+          <FILE id="mABmBo" name="ProcessorBase.h" compile="0" resource="0" file="Source/Reverb Algorithms/Reverb/ProcessorBase.h"/>
+          <FILE id="RdnkmJ" name="PsychoDamping.cpp" compile="1" resource="0"
+                file="Source/Reverb Algorithms/Reverb/PsychoDamping.cpp"/>
+          <FILE id="M4azZD" name="PsychoDamping.h" compile="0" resource="0" file="Source/Reverb Algorithms/Reverb/PsychoDamping.h"/>
+          <FILE id="sdYZfB" name="DatorroHall.cpp" compile="1" resource="0" file="Source/Reverb Algorithms/Reverb/DatorroHall.cpp"/>
+          <FILE id="GY6cVv" name="DatorroHall.h" compile="0" resource="0" file="Source/Reverb Algorithms/Reverb/DatorroHall.h"/>
+          <FILE id="Vxs0x2" name="HybridPlate.cpp" compile="1" resource="0" file="Source/Reverb Algorithms/Reverb/HybridPlate.cpp"/>
+          <FILE id="sA1U1C" name="HybridPlate.h" compile="0" resource="0" file="Source/Reverb Algorithms/Reverb/HybridPlate.h"/>
+        </GROUP>
+        <FILE id="tk0spr" name="CustomDelays.h" compile="0" resource="0" file="Source/Reverb Algorithms/CustomDelays.h"/>
+        <FILE id="UBarFd" name="CustomDelays.cpp" compile="1" resource="0"
+              file="Source/Reverb Algorithms/CustomDelays.cpp"/>
       </GROUP>
-      <FILE id="xECwoY" name="BasicDelay.cpp" compile="1" resource="0" file="Source/BasicDelay.cpp"/>
-      <FILE id="dlgVHy" name="BasicDelay.h" compile="0" resource="0" file="Source/BasicDelay.h"/>
-      <FILE id="wk3eO3" name="PsychoDamping.cpp" compile="1" resource="0"
-            file="Source/PsychoDamping.cpp"/>
-      <FILE id="s5E8n8" name="PsychoDamping.h" compile="0" resource="0" file="Source/PsychoDamping.h"/>
-      <FILE id="rph9pM" name="CustomDelays.cpp" compile="1" resource="0"
-            file="Source/CustomDelays.cpp"/>
-      <FILE id="h8CNSq" name="HybridPlate.cpp" compile="1" resource="0" file="Source/HybridPlate.cpp"/>
-      <FILE id="cRL7sD" name="HybridPlate.h" compile="0" resource="0" file="Source/HybridPlate.h"/>
-      <FILE id="a5FOZB" name="CustomDelays.h" compile="0" resource="0" file="Source/CustomDelays.h"/>
-      <FILE id="kPcDDr" name="DatorroHall.cpp" compile="1" resource="0" file="Source/DatorroHall.cpp"/>
-      <FILE id="KEljIF" name="DatorroHall.h" compile="0" resource="0" file="Source/DatorroHall.h"/>
-      <FILE id="hs8J12" name="IRBank.h" compile="0" resource="0" file="Source/IRBank.h"/>
-      <FILE id="iXkWEW" name="LFO.cpp" compile="1" resource="0" file="Source/LFO.cpp"/>
-      <FILE id="eIHqHW" name="LFO.h" compile="0" resource="0" file="Source/LFO.h"/>
-      <FILE id="IjrF4B" name="ProcessorBase.h" compile="0" resource="0" file="Source/ProcessorBase.h"/>
-      <FILE id="rb6xHe" name="Convolution.cpp" compile="1" resource="0" file="Source/Convolution.cpp"/>
-      <FILE id="M9bvTK" name="Convolution.h" compile="0" resource="0" file="Source/Convolution.h"/>
+      <GROUP id="{9D5CDAC7-64FA-EAD2-C694-A4240E21939C}" name="Modular Classes">
+        <FILE id="d4Qud2" name="ModuleSlotEditor.h" compile="0" resource="0"
+              file="Source/Modular Classes/ModuleSlotEditor.h"/>
+        <FILE id="b62uOt" name="ModuleSlot.h" compile="0" resource="0" file="Source/Modular Classes/ModuleSlot.h"/>
+        <FILE id="pzjXRc" name="ModuleSlotEditor.cpp" compile="1" resource="0"
+              file="Source/Modular Classes/ModuleSlotEditor.cpp"/>
+        <GROUP id="{5BA6067D-D5D0-1D4A-2C04-A23A964D8A65}" name="EffectModules">
+          <FILE id="HHxdxm" name="DelayModule.h" compile="0" resource="0" file="Source/Modular Classes/Effect Modules/DelayModule.h"/>
+          <FILE id="R2mg3I" name="EffectModule.h" compile="0" resource="0" file="Source/Modular Classes/Effect Modules/EffectModule.h"/>
+          <FILE id="HER0mb" name="ReverbModule.cpp" compile="1" resource="0"
+                file="Source/Modular Classes/Effect Modules/ReverbModule.cpp"/>
+          <FILE id="FlHCcp" name="ReverbModule.h" compile="0" resource="0" file="Source/Modular Classes/Effect Modules/ReverbModule.h"/>
+          <FILE id="bW4yex" name="ConvolutionModule.cpp" compile="1" resource="0"
+                file="Source/Modular Classes/Effect Modules/ConvolutionModule.cpp"/>
+          <FILE id="gwAmxu" name="ConvolutionModule.h" compile="0" resource="0"
+                file="Source/Modular Classes/Effect Modules/ConvolutionModule.h"/>
+          <FILE id="UAOjDQ" name="DelayModule.cpp" compile="1" resource="0" file="Source/Modular Classes/Effect Modules/DelayModule.cpp"/>
+        </GROUP>
+      </GROUP>
       <FILE id="HDEqaF" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
       <FILE id="H4DcER" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

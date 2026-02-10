@@ -24,11 +24,11 @@
   #include <juce_gui_basics/juce_gui_basics.h>
   #include <juce_gui_extra/juce_gui_extra.h>
 #endif
-#include "ModuleSlot.h"
-#include "DelayModule.h"
-#include "ReverbModule.h"
-#include "IRBank.h"
-#include "ConvolutionModule.h"
+#include "Modular Classes/ModuleSlot.h"
+#include "Modular Classes/Effect Modules/DelayModule.h"
+#include "Modular Classes/Effect Modules/ReverbModule.h"
+#include "Modular Classes/Effect Modules/ConvolutionModule.h"
+#include "Reverb Algorithms/Convolution/IRBank.h"
 
 //==============================================================================
 /**
@@ -76,6 +76,9 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    static void addGlobalParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
+    static void addChainParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int chainIndex);
+    static void addSlotParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int chainIndex, int slotIndex);
 
     juce::AudioProcessorValueTreeState apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
@@ -97,6 +100,9 @@ public:
     // IR Bank accessor for UI
     std::shared_ptr<IRBank> getIRBank() const { return irBank; }
 
+    static constexpr int MAX_SLOTS = 8;
+    static constexpr int NUM_CHAINS = 2;
+
 private:
     juce::dsp::ProcessSpec spec;
 
@@ -116,9 +122,6 @@ private:
     std::atomic<bool> moveRequested{ false };
     PendingMove pendingMove;
     void executeSlotMove();
-
-    static constexpr int MAX_SLOTS = 8;
-    static constexpr int NUM_CHAINS = 2;
 
     void setSlotDefaults(juce::String slotID);
 

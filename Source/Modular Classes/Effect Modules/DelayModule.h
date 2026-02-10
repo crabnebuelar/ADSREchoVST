@@ -9,7 +9,7 @@
 
 #pragma once
 #include "EffectModule.h"
-#include "BasicDelay.h"
+#include "../../Reverb Algorithms/Delay/BasicDelay.h"
 
 class DelayModule : public EffectModule
 {

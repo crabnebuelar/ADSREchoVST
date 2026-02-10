@@ -18,7 +18,7 @@
   #include <juce_gui_basics/juce_gui_basics.h>
   #include <juce_gui_extra/juce_gui_extra.h>
 #endif
-#include "Utilities.h"
+#include "../../Utilities.h"
 
 class ReverbProcessorBase
 {

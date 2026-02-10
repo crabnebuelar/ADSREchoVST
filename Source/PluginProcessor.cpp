@@ -8,7 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "DatorroHall.h"
+#include "Reverb Algorithms/Reverb/DatorroHall.h"
 
 //==============================================================================
 ADSREchoAudioProcessor::ADSREchoAudioProcessor()
@@ -170,6 +170,14 @@ bool ADSREchoAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void ADSREchoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    // Move modules around if requested
+    if (moveRequested.load(std::memory_order_acquire))
+    {
+        executeSlotMove();
+
+    }
+    
+    // Resize, clear, and copy buffers
     chainTempBuffer.setSize(
         chainTempBuffer.getNumChannels(),
         buffer.getNumSamples(),
@@ -187,7 +195,6 @@ void ADSREchoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-
     masterDryBuffer.clear();
     chainTempBuffer.clear();
 
@@ -196,14 +203,8 @@ void ADSREchoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (int ch = 0; ch < totalNumInputChannels; ++ch)
         masterDryBuffer.copyFrom(ch, 0, buffer, ch, 0, numSamples);
 
-    // Move modules around if requested
-    if (moveRequested.load(std::memory_order_acquire))
-    {
-        executeSlotMove();
-
-    }
-
     buffer.clear();
+
     // Process the audio through each module slot effect
     bool parallelEnabled = apvts.getRawParameterValue("parallelEnabled")->load();
 
@@ -242,36 +243,7 @@ void ADSREchoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         {
             buffer.addFrom(ch, 0, chainTempBuffer, ch, 0, numSamples, 1.0f);
         }
-
     }
-
-    //for (int ch = 0; ch < totalNumInputChannels; ++ch)
-    //{
-    //    buffer.addFrom(ch, 0, chainTempBuffer, ch, 0, numSamples);
-    //}
-    
-    //for (auto& slot : slots) 
-    //{
-    //    slot->process(buffer, midiMessages, getPlayHead());
-    //}
-
-    //// ============ MASTER DRY/WET MIX ============
-    //const float masterWet = apvts.getRawParameterValue("MasterMix")->load();
-    //const float masterDry = 1.0f - masterWet;
-
-    //// Blend original dry with all processed effects
-    //for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    //{
-    //    auto* processedData = buffer.getWritePointer(channel);
-    //    const auto* originalDryData = masterDryBuffer.getReadPointer(channel);
-
-    //    for (int i = 0; i < numSamples; ++i)
-    //        processedData[i] = originalDryData[i] * masterDry + processedData[i] * masterWet;
-    //}
-    //
-    //// Apply master output gain
-    //float gainValue = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("Gain")->load());
-    //buffer.applyGain(gainValue);
 }
 
 //==============================================================================
@@ -379,99 +351,112 @@ juce::AudioProcessorValueTreeState::ParameterLayout ADSREchoAudioProcessor::crea
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Master Controls
-    layout.add(std::make_unique<juce::AudioParameterBool>("parallelEnabled", "Parallel Enabled", false));
+    addGlobalParameters(layout);
 
-    // Master controls
-    for (int j = 0; j < NUM_CHAINS; j++)
+    for (int chain = 0; chain < NUM_CHAINS; ++chain)
     {
-        // Per Chain Controls (id "chain_1.gain")
-        juce::String chainPrefix = "chain_" + juce::String(j);
-        layout.add(std::make_unique<juce::AudioParameterFloat>(chainPrefix + ".gain", "Gain",
-            juce::NormalisableRange<float>(-6.f, 6.f, .01f, 1.f), 0.f));
+        addChainParameters(layout, chain);
 
-        layout.add(std::make_unique<juce::AudioParameterFloat>(chainPrefix + ".masterMix", "Master Mix",
-            juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));  // Default 100% wet
-
-        // Per Module Controls (id "chain_0.slot_1.mix")
-        for (int i = 0; i < MAX_SLOTS; i++)
-        {
-            juce::String prefix = chainPrefix + ".slot_" + juce::String(i);
-
-            layout.add(std::make_unique<juce::AudioParameterBool>(prefix + ".enabled", "Enabled", true));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".mix", "Mix",
-                juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayTime", "Delay Time",
-                juce::NormalisableRange<float>(1.0f, 2000.0f, 0.1f, 0.4f), 250.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".feedback", "Feedback",
-                juce::NormalisableRange<float>(0.0f, 0.95f, 0.01f), 0.3f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".roomSize", "Room Size",
-                juce::NormalisableRange<float>(0.25f, 1.75f, 0.01f), 1.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".decayTime", "Decay Time (s)",
-                juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.5f), 5.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".preDelay", "Pre Delay (ms)",
-                juce::NormalisableRange<float>(0.0f, 200.0f, 0.1f), 0.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".damping", "Damping",
-                juce::NormalisableRange<float>(500.0f, 10000.0f, 1.f, 0.5f), 8000.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".modRate", "Mod Rate",
-                juce::NormalisableRange<float>(0.05f, 5.0f, 0.001f), 0.30f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".modDepth", "Mod Depth",
-                juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.15f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convIrIndex", "Conv IR Index",
-                juce::NormalisableRange<float>(0.0f, 150.0f, 1.0f), 0.0f));  // adjust max index as needed
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convIrGain", "Conv IR Gain (dB)",
-                juce::NormalisableRange<float>(-18.0f, 18.0f, 0.1f), 0.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convLowCut", "Conv Low Cut (Hz)",
-                juce::NormalisableRange<float>(20.0f, 1000.0f, 1.0f, 0.3f), 80.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convHighCut", "Conv High Cut (Hz)",
-                juce::NormalisableRange<float>(2000.0f, 20000.0f, 1.0f, 0.3f), 12000.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".reverbType", "Type",
-                juce::StringArray{ "Datorro Hall", "Hybrid Plate" }, 0));
-
-            // Delay BPM Sync
-            layout.add(std::make_unique<juce::AudioParameterBool>(prefix + ".delaySyncEnabled", "Delay BPM Sync", false));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayBpm", "BPM Override",
-                juce::NormalisableRange<float>(20.0f, 300.0f, 0.1f), 120.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".delayNoteDiv", "Delay Note Division",
-                juce::StringArray{ "1/1", "1/2", "1/4", "1/8", "1/16", "1/32",
-                                   "1/2 Dotted", "1/4 Dotted", "1/8 Dotted", "1/16 Dotted",
-                                   "1/2 Triplet", "1/4 Triplet", "1/8 Triplet", "1/16 Triplet" }, 2));
-
-            // Delay Mode
-            layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".delayMode", "Delay Mode",
-                juce::StringArray{ "Normal", "Ping Pong", "Inverted" }, 0));
-
-            // Delay Pan
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayPan", "Delay Pan",
-                juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
-
-            // Delay Filters
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayLowpass", "Delay Lowpass",
-                juce::NormalisableRange<float>(200.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayHighpass", "Delay Highpass",
-                juce::NormalisableRange<float>(20.0f, 5000.0f, 1.0f, 0.3f), 20.0f));
-        }
+        for (int slot = 0; slot < MAX_SLOTS; ++slot)
+            addSlotParameters(layout, chain, slot);
     }
 
     return layout;
 }
+
+void ADSREchoAudioProcessor::addGlobalParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
+{
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        "parallelEnabled", "Parallel Enabled", false));
+}
+
+
+void ADSREchoAudioProcessor::addChainParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int chainIndex)
+{
+    const juce::String prefix = "chain_" + juce::String(chainIndex);
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        prefix + ".gain", "Gain",
+        juce::NormalisableRange<float>(-6.f, 6.f, 0.01f), 0.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        prefix + ".masterMix", "Master Mix",
+        juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 1.f));
+}
+
+void ADSREchoAudioProcessor::addSlotParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int chainIndex, int slotIndex)
+{
+    const juce::String prefix =
+        "chain_" + juce::String(chainIndex) +
+        ".slot_" + juce::String(slotIndex);
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + ".enabled", "Enabled", true));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".mix", "Mix",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayTime", "Delay Time",
+        juce::NormalisableRange<float>(1.0f, 2000.0f, 0.1f, 0.4f), 250.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".feedback", "Feedback",
+        juce::NormalisableRange<float>(0.0f, 0.95f, 0.01f), 0.3f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".roomSize", "Room Size",
+        juce::NormalisableRange<float>(0.25f, 1.75f, 0.01f), 1.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".decayTime", "Decay Time (s)",
+        juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.5f), 5.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".preDelay", "Pre Delay (ms)",
+        juce::NormalisableRange<float>(0.0f, 200.0f, 0.1f), 0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".damping", "Damping",
+        juce::NormalisableRange<float>(500.0f, 10000.0f, 1.f, 0.5f), 8000.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".modRate", "Mod Rate",
+        juce::NormalisableRange<float>(0.05f, 5.0f, 0.001f), 0.30f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".modDepth", "Mod Depth",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.15f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convIrIndex", "Conv IR Index",
+        juce::NormalisableRange<float>(0.0f, 150.0f, 1.0f), 0.0f));  // adjust max index as needed
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convIrGain", "Conv IR Gain (dB)",
+        juce::NormalisableRange<float>(-18.0f, 18.0f, 0.1f), 0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convLowCut", "Conv Low Cut (Hz)",
+        juce::NormalisableRange<float>(20.0f, 1000.0f, 1.0f, 0.3f), 80.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".convHighCut", "Conv High Cut (Hz)",
+        juce::NormalisableRange<float>(2000.0f, 20000.0f, 1.0f, 0.3f), 12000.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".reverbType", "Type",
+        juce::StringArray{ "Datorro Hall", "Hybrid Plate" }, 0));
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + ".delaySyncEnabled", "Delay BPM Sync", false));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayBpm", "BPM Override",
+        juce::NormalisableRange<float>(20.0f, 300.0f, 0.1f), 120.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".delayNoteDiv", "Delay Note Division",
+        juce::StringArray{ "1/1", "1/2", "1/4", "1/8", "1/16", "1/32",
+                           "1/2 Dotted", "1/4 Dotted", "1/8 Dotted", "1/16 Dotted",
+                           "1/2 Triplet", "1/4 Triplet", "1/8 Triplet", "1/16 Triplet" }, 2));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(prefix + ".delayMode", "Delay Mode",
+        juce::StringArray{ "Normal", "Ping Pong", "Inverted" }, 0));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayPan", "Delay Pan",
+        juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayLowpass", "Delay Lowpass",
+        juce::NormalisableRange<float>(200.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + ".delayHighpass", "Delay Highpass",
+        juce::NormalisableRange<float>(20.0f, 5000.0f, 1.0f, 0.3f), 20.0f));
+}
+
 
 int ADSREchoAudioProcessor::getNumSlots() const
 {

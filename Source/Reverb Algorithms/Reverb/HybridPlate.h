@@ -18,10 +18,10 @@
   #include <juce_gui_extra/juce_gui_extra.h>
 #endif
 
-#include "CustomDelays.h"   // DelayLineWithSampleAccess, Allpass
+#include "../CustomDelays.h"   // DelayLineWithSampleAccess, Allpass
 #include "LFO.h"
 #include "ProcessorBase.h"
-#include "Utilities.h"
+#include "../../Utilities.h"
 #include "PsychoDamping.h"
 
 class HybridPlate : public ReverbProcessorBase

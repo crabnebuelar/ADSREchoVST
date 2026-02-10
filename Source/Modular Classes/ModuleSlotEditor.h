@@ -23,7 +23,7 @@
   #include <juce_gui_extra/juce_gui_extra.h>
 #endif
 
-#include "PluginProcessor.h"
+#include "../PluginProcessor.h"
 
 class ModuleSlotEditor : public juce::Component
 {

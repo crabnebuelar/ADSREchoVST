@@ -2,8 +2,8 @@
 
 #include <JuceHeader.h>
 #include "EffectModule.h"
-#include "Convolution.h"
-#include "IRBank.h"
+#include "../../Reverb Algorithms/Convolution/Convolution.h"
+#include "../../Reverb Algorithms/Convolution/IRBank.h"
 
 class ConvolutionModule : public EffectModule
 {

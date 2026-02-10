@@ -9,8 +9,8 @@
 
 #pragma once
 #include "EffectModule.h"
-#include "DatorroHall.h"
-#include "HybridPlate.h"
+#include "../../Reverb Algorithms/Reverb/DatorroHall.h"
+#include "../../Reverb Algorithms/Reverb/HybridPlate.h"
 
 class ReverbModule : public EffectModule
 {
