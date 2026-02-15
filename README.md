@@ -84,7 +84,6 @@ These files contain:
 - Signal routing and summing
 - Parameter management and state saving/loading
 
----
 
 ### Effect Module System
 
@@ -99,7 +98,6 @@ These files contain:
 
 These files define the DSP module interface and the concrete effect implementations used by the processor.
 
----
 
 ### Temporary UI (Designed & Implemented by Me)
 
